@@ -61,8 +61,8 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-background">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <div className="h-12 w-12 rounded-xl gradient-stellar flex items-center justify-center mx-auto mb-4">
-            <Wallet className="h-6 w-6 text-primary-foreground" />
+          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <Wallet className="h-6 w-6 text-primary" />
           </div>
           <h1 className="font-display text-2xl font-bold">StellarInvoice</h1>
           <p className="text-sm text-muted-foreground mt-1">Decentralized Invoice Financing on Stellar</p>
@@ -102,7 +102,7 @@ export default function Auth() {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full gradient-stellar text-primary-foreground" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
                 <p className="text-xs text-center text-muted-foreground">
@@ -159,7 +159,7 @@ export default function Auth() {
                     ))}
                   </div>
                 </div>
-                <Button type="submit" className="w-full gradient-stellar text-primary-foreground" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Creating account..." : "Create Account"}
                 </Button>
               </form>

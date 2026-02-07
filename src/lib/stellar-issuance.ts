@@ -1,6 +1,6 @@
-import { Asset, Keypair, Operation, TransactionBuilder, TimeoutInfinite } from "@stellar/stellar-sdk";
+import { Asset, Keypair, Operation, TransactionBuilder, AuthRequiredFlag, AuthRevocableFlag, AuthClawbackEnabledFlag } from "@stellar/stellar-sdk";
 import { signTransaction } from "@stellar/freighter-api";
-import { server, STELLAR_TESTNET_URL } from "./stellar";
+import { server } from "./stellar";
 import { toast } from "sonner";
 
 // Hardcoded for demo purposes (In production, store securely on backend)
@@ -23,6 +23,34 @@ export const fundIssuerAccount = async () => {
   }
 };
 
+export const configureIssuerCompliance = async () => {
+  try {
+    const account = await server.loadAccount(ISSUER_KEYPAIR.publicKey());
+    
+    // Check if flags are already set (simplified check)
+    if (account.flags.auth_required && account.flags.auth_revocable && account.flags.auth_clawback_enabled) {
+      return;
+    }
+
+    const tx = new TransactionBuilder(account, {
+      fee: "100",
+      networkPassphrase: "Test SDF Network ; September 2015",
+    })
+    .addOperation(Operation.setOptions({
+      setFlags: (AuthRequiredFlag | AuthRevocableFlag | AuthClawbackEnabledFlag) as any
+    }))
+    .setTimeout(30)
+    .build();
+
+    tx.sign(ISSUER_KEYPAIR);
+    await server.submitTransaction(tx);
+    console.log("Issuer compliance flags set");
+  } catch (e) {
+    console.error("Error configuring issuer compliance:", e);
+    // Don't block flow if this fails (e.g., already set or network issue)
+  }
+};
+
 export const tokenizeInvoice = async (
   userPublicKey: string,
   invoiceId: string,
@@ -32,6 +60,9 @@ export const tokenizeInvoice = async (
   try {
     // 1. Ensure Issuer is funded (lazy funding for demo)
     await fundIssuerAccount();
+    
+    // 1.5 Configure Compliance Flags
+    await configureIssuerCompliance();
 
     // 2. Generate Asset Code (Must be alphanumeric, <= 12 chars)
     // Format: INV-[Last 8 chars of ID] or similar. 

@@ -14,14 +14,13 @@ export function FAB() {
             <Button
               variant="gradient"
               size="icon"
-              className="h-14 w-14 rounded-full shadow-2xl animate-bounce-slow"
+              className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all"
               onClick={() => navigate("/upload")}
             >
               <Plus className="h-6 w-6" />
-              <span className="absolute inset-0 rounded-full animate-ping opacity-20 bg-stellar-pink"></span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="left" className="bg-stellar-navy text-white border-stellar-purple">
+          <TooltipContent side="left" className="bg-popover text-popover-foreground border-border">
             <p>New Invoice</p>
           </TooltipContent>
         </Tooltip>

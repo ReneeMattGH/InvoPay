@@ -6,62 +6,61 @@
 
 @layer base {
   :root {
-    /* Dark Purple Theme Base */
-    --background: 264 68% 20%; /* #2B1055 */
-    --foreground: 0 0% 100%;   /* #FFFFFF */
+    /* Professional Fintech Theme (Dark Mode Base) */
+    --background: 222 47% 11%; /* Slate 950 */
+    --foreground: 210 40% 98%; /* Slate 50 */
 
-    --card: 264 59% 28%;       /* #3b1d70 - Slightly lighter purple */
-    --card-foreground: 0 0% 100%;
+    --card: 217 33% 17%;       /* Slate 900 */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 264 59% 28%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 264 79% 61%;    /* #8C4EEA - Purple Accent */
-    --primary-foreground: 0 0% 100%;
+    --primary: 221 83% 53%;    /* Blue 600 - Trustworthy Blue */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 264 40% 40%;  /* Muted Purple */
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 215 25% 27%;  /* Slate 800 */
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 264 40% 15%;      /* Darker Muted */
-    --muted-foreground: 264 20% 70%; /* #CCCCCCish */
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%; /* Slate 400 */
 
-    --accent: 327 100% 71%;    /* #FF6EDB - Neon Pink */
-    --accent-foreground: 0 0% 100%;
+    --accent: 199 89% 48%;     /* Cyan/Teal - Modern Accent */
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 264 40% 35%;
-    --input: 264 40% 35%;
-    --ring: 166 100% 50%;      /* #00FFC3 - Teal Ring for focus */
+    --border: 217 33% 25%;
+    --input: 217 33% 25%;
+    --ring: 221 83% 53%;
 
-    --radius: 1rem;            /* 2xl rounded */
+    --radius: 0.5rem;          /* Professional rounded corners (8px) */
 
-    /* Sidebar - match main theme or slightly darker */
-    --sidebar-background: 264 68% 15%;
-    --sidebar-foreground: 264 20% 90%;
-    --sidebar-primary: 327 100% 71%; /* Neon Pink active item */
+    /* Sidebar */
+    --sidebar-background: 222 47% 10%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 221 83% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 264 59% 28%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 264 40% 30%;
-    --sidebar-ring: 166 100% 50%;
+    --sidebar-accent: 217 33% 20%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 25%;
+    --sidebar-ring: 221 83% 53%;
 
-    /* Custom tokens */
+    /* Custom tokens - Remapped for Professional Look */
     --stellar-cyan: 199 89% 48%;
-    --stellar-teal: 166 100% 50%;
-    --stellar-purple: 264 79% 61%;
-    --stellar-pink: 327 100% 71%;
+    --stellar-teal: 166 100% 40%;  /* Darker Teal */
+    --stellar-purple: 221 83% 53%; /* Mapped to Primary Blue */
+    --stellar-pink: 262 80% 50%;   /* Mapped to Deep Purple (Accents) */
     
-    --gradient-stellar: linear-gradient(135deg, hsl(264 79% 61%), hsl(327 100% 71%));
-    --gradient-bg: radial-gradient(circle at 50% 0%, #5D3FD3 0%, #2B1055 60%);
+    --gradient-stellar: linear-gradient(135deg, hsl(221 83% 53%), hsl(199 89% 48%));
+    --gradient-bg: linear-gradient(to bottom, hsl(222 47% 11%), hsl(222 47% 9%));
   }
 
-  /* Force dark mode styles if .dark class is used, but :root is already dark now */
+  /* Dark mode overrides (if needed) */
   .dark {
-    --background: 264 68% 20%;
-    --foreground: 0 0% 100%;
-    /* ... keep same as root for now as requested base is dark */
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
   }
 }
 
@@ -71,32 +70,32 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image: var(--gradient-bg);
-    background-attachment: fixed;
+    /* Removed the fixed radial gradient for a cleaner look */
     min-height: 100vh;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply bg-card/60 backdrop-blur-xl border border-white/10 shadow-lg;
+    @apply bg-card/90 backdrop-blur-sm border border-white/5 shadow-md;
   }
   
   .hover-glow {
-    @apply transition-all duration-300 hover:shadow-[0_0_20px_rgba(140,78,234,0.5)] hover:-translate-y-1;
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 hover:bg-card/95 hover:border-primary/20;
   }
 
   .hover-glow-pink {
-    @apply transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,110,219,0.5)] hover:-translate-y-1;
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 hover:border-accent/20;
   }
   
   .text-glow {
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    /* Removed subtle text glow for sharpness */
   }
 
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--stellar-purple))] to-[hsl(var(--stellar-pink))];
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400;
   }
+
 
   .gradient-stellar {
     @apply bg-gradient-to-r from-[hsl(var(--stellar-purple))] to-[hsl(var(--stellar-pink))];

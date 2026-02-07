@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { mockInvoices, formatINR, formatUSDC } from "@/lib/mock-data";
 import { RiskBadge } from "@/components/RiskBadge";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -11,12 +11,31 @@ import { Layers, TrendingUp, CheckCircle2, Rocket, Shield, AlertTriangle } from 
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
-import { deployLendingPool, investInPool } from "@/lib/soroban";
+import { deployLendingPool, investInPool, getPoolYield, CURRENT_POOL_CONTRACT_ID } from "@/lib/soroban";
 
 export default function BrowsePools() {
   const { userRole } = useAuth();
   const { isConnected, publicKey } = useWallet();
   const pools = mockInvoices.filter((i) => i.status === "tokenized" || i.status === "funded");
+  
+  const [poolYields, setPoolYields] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const fetchYields = async () => {
+      const yields: Record<string, number> = {};
+      for (const pool of pools) {
+        // In a real app, each pool would have its own contract ID
+        // Here we use the shared ID + risk score fallback
+        const numericRisk = pool.risk_score === "low" ? 10 : pool.risk_score === "medium" ? 40 : 70;
+        yields[pool.id] = await getPoolYield(CURRENT_POOL_CONTRACT_ID, numericRisk);
+      }
+      setPoolYields(yields);
+    };
+    fetchYields();
+    // Refresh every 30s to simulate "Live" data
+    const interval = setInterval(fetchYields, 30000);
+    return () => clearInterval(interval);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   
   const [investDialog, setInvestDialog] = useState<typeof pools[0] | null>(null);
   const [investAmount, setInvestAmount] = useState("");
@@ -85,28 +104,31 @@ export default function BrowsePools() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {pools.map((pool) => (
-          <div key={pool.id} className="glass-card rounded-2xl p-6 space-y-4 hover-glow transition-all duration-300 group">
+          <div key={pool.id} className="glass-card rounded-xl p-6 space-y-4 hover-glow transition-all duration-300 group border border-border">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-mono text-xs text-muted-foreground group-hover:text-stellar-pink transition-colors">{pool.id}</p>
-                <h3 className="font-display font-bold text-lg mt-1 text-foreground">{pool.buyer_name}</h3>
+                <p className="font-mono text-xs text-muted-foreground group-hover:text-primary transition-colors">{pool.id}</p>
+                <h3 className="font-display font-semibold text-lg mt-1 text-foreground">{pool.buyer_name}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">{pool.description}</p>
               </div>
               <StatusBadge status={pool.status} />
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-sm bg-white/5 p-4 rounded-xl">
+            <div className="grid grid-cols-2 gap-4 text-sm bg-muted/30 p-4 rounded-lg">
               <div>
                 <p className="text-muted-foreground text-xs">Value</p>
                 <p className="font-bold">{formatINR(pool.amount_inr)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">Token Value</p>
-                <p className="font-bold text-stellar-teal">{formatUSDC(pool.token_value!)}</p>
+                <p className="font-bold text-emerald-600">{formatUSDC(pool.token_value!)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">APR</p>
-                <p className="font-bold text-stellar-purple">{pool.interest_rate}%</p>
+                <div className="flex items-center gap-1">
+                   <p className="font-bold text-primary">{poolYields[pool.id] || pool.interest_rate}%</p>
+                   {poolYields[pool.id] && <span className="text-[10px] bg-green-500/10 text-green-500 px-1 rounded animate-pulse">LIVE</span>}
+                </div>
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">Risk</p>
@@ -114,14 +136,14 @@ export default function BrowsePools() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-white/10">
+            <div className="flex items-center justify-between pt-2 border-t border-border">
               <span className="text-xs text-muted-foreground">Due: {pool.due_date}</span>
               <div className="flex gap-2">
                 {userRole === "business" && pool.status === "tokenized" ? (
                   <Button
                     size="sm"
-                    variant="neon"
-                    className="h-8 text-xs"
+                    variant="outline"
+                    className="h-8 text-xs border-primary text-primary hover:bg-primary/10"
                     onClick={() => handleCreatePool(pool.id)}
                     disabled={!!deploying}
                   >
@@ -135,8 +157,8 @@ export default function BrowsePools() {
                 ) : (
                   <Button
                     size="sm"
-                    variant={pool.status === "funded" ? "secondary" : "gradient"}
-                    className={pool.status === "funded" ? "" : "shadow-lg"}
+                    variant={pool.status === "funded" ? "secondary" : "default"}
+                    className={pool.status === "funded" ? "" : "shadow-sm"}
                     onClick={() => setInvestDialog(pool)}
                     disabled={pool.status === "funded"}
                   >
@@ -171,7 +193,7 @@ export default function BrowsePools() {
             <div className="space-y-4 mt-2">
               <div className="glass-card rounded-lg p-4 space-y-2 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Pool</span><span className="font-medium">{investDialog.id}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Base APR</span><span className="text-primary font-medium">{investDialog.interest_rate}%</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Base APR</span><span className="text-primary font-medium">{poolYields[investDialog.id] || investDialog.interest_rate}%</span></div>
                 <div className="flex justify-between items-center"><span className="text-muted-foreground">Risk</span><RiskBadge risk={investDialog.risk_score} /></div>
               </div>
 
@@ -179,24 +201,30 @@ export default function BrowsePools() {
                 <Label>Select Tranche</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <div 
-                    className={`border rounded-lg p-3 cursor-pointer transition-all ${tranche === "Senior" ? "bg-stellar-purple/20 border-stellar-purple" : "border-white/10 hover:border-white/30"}`}
+                    className={`border rounded-lg p-3 cursor-pointer transition-all ${tranche === "Senior" ? "bg-blue-500/10 border-blue-500" : "border-border hover:border-primary/50"}`}
                     onClick={() => setTranche("Senior")}
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      <Shield className="h-4 w-4 text-stellar-teal" />
+                      <Shield className="h-4 w-4 text-blue-500" />
                       <span className="font-medium text-sm">Senior</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Lower risk, first repayment priority.</p>
+                    <p className="text-xs text-muted-foreground">First priority.</p>
+                    <p className="text-sm font-bold text-blue-500 mt-1">
+                      {((poolYields[investDialog.id] || investDialog.interest_rate) - 2).toFixed(2)}% APY
+                    </p>
                   </div>
                   <div 
-                    className={`border rounded-lg p-3 cursor-pointer transition-all ${tranche === "Junior" ? "bg-stellar-pink/20 border-stellar-pink" : "border-white/10 hover:border-white/30"}`}
+                    className={`border rounded-lg p-3 cursor-pointer transition-all ${tranche === "Junior" ? "bg-amber-500/10 border-amber-500" : "border-border hover:border-amber-500/50"}`}
                     onClick={() => setTranche("Junior")}
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      <AlertTriangle className="h-4 w-4 text-stellar-pink" />
+                      <AlertTriangle className="h-4 w-4 text-amber-500" />
                       <span className="font-medium text-sm">Junior</span>
                     </div>
-                    <p className="text-xs text-muted-foreground">Higher risk, higher yield potential.</p>
+                    <p className="text-xs text-muted-foreground">Higher yield.</p>
+                    <p className="text-sm font-bold text-amber-500 mt-1">
+                      {((poolYields[investDialog.id] || investDialog.interest_rate) + 4).toFixed(2)}% APY
+                    </p>
                   </div>
                 </div>
               </div>

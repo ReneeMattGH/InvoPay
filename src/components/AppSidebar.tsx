@@ -67,8 +67,8 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/"}
-                      className="flex items-center gap-3 px-3 py-2 rounded-md text-sidebar-foreground hover:bg-sidebar-accent hover:text-stellar-pink transition-all duration-200"
-                      activeClassName="bg-sidebar-accent text-stellar-pink font-medium shadow-[inset_4px_0_0_0_hsl(var(--stellar-pink))]"
+                      className="flex items-center gap-3 px-3 py-2 rounded-md text-sidebar-foreground hover:bg-sidebar-accent hover:text-primary transition-all duration-200"
+                      activeClassName="bg-sidebar-accent text-primary font-medium shadow-[inset_4px_0_0_0_hsl(var(--primary))]"
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>

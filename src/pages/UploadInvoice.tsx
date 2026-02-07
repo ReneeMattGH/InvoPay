@@ -4,11 +4,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RiskBadge } from "@/components/RiskBadge";
-import { calculateRiskScore, calculateInterestRate, formatINR } from "@/lib/mock-data";
-import { Upload, FileText, Zap, CheckCircle2 } from "lucide-react";
+import { formatINR } from "@/lib/mock-data";
+import { calculateRealRiskScore } from "@/lib/risk-scoring";
+import { useWallet } from "@/hooks/useWallet";
+import { Upload, FileText, Zap, CheckCircle2, Info } from "lucide-react";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function UploadInvoice() {
+  const { publicKey } = useWallet();
   const [step, setStep] = useState<"upload" | "tokenize" | "done">("upload");
   const [form, setForm] = useState({
     buyerName: "",
@@ -19,16 +23,30 @@ export default function UploadInvoice() {
   const [file, setFile] = useState<File | null>(null);
   const [risk, setRisk] = useState<"low" | "medium" | "high">("medium");
   const [rate, setRate] = useState(10);
+  const [riskReason, setRiskReason] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const riskScore = calculateRiskScore(Number(form.amountInr), form.dueDate);
-    const interestRate = calculateInterestRate(riskScore);
-    setRisk(riskScore);
-    setRate(interestRate);
-    setStep("tokenize");
-    toast.success("Invoice uploaded successfully!");
+    setLoading(true);
+    try {
+      const { score, recommendedRate, reason } = await calculateRealRiskScore(
+        Number(form.amountInr), 
+        form.dueDate,
+        publicKey || undefined
+      );
+      
+      setRisk(score);
+      setRate(recommendedRate);
+      setRiskReason(reason);
+      setStep("tokenize");
+      toast.success("Invoice analyzed successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error analyzing invoice");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleTokenize = () => {
@@ -82,7 +100,21 @@ export default function UploadInvoice() {
             <span className="font-medium text-primary">{tokenValue} USDC</span>
           </div>
           <div className="flex justify-between items-center text-sm">
-            <span className="text-muted-foreground">Risk Score</span>
+            <span className="text-muted-foreground flex items-center gap-1">
+              Risk Score
+              {riskReason && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-3 w-3 text-muted-foreground/70" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-[200px] text-xs">{riskReason}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </span>
             <RiskBadge risk={risk} />
           </div>
           <div className="flex justify-between text-sm">
@@ -101,7 +133,7 @@ export default function UploadInvoice() {
         </div>
 
         <Button
-          className="w-full gradient-stellar text-primary-foreground glow-cyan"
+          className="w-full"
           onClick={handleTokenize}
           disabled={loading}
         >
@@ -189,9 +221,9 @@ export default function UploadInvoice() {
           </div>
         </div>
 
-        <Button type="submit" className="w-full gradient-stellar text-primary-foreground">
+        <Button type="submit" className="w-full" disabled={loading}>
           <Upload className="mr-2 h-4 w-4" />
-          Upload &amp; Analyze
+          {loading ? "Analyzing Risk..." : "Upload & Analyze"}
         </Button>
       </form>
     </div>

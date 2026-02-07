@@ -4,7 +4,8 @@ import { useStellarAccount, useStellarTransactions, useXLMToINR } from "@/hooks/
 import { StatsCard } from "@/components/StatsCard";
 import { StatusBadge } from "@/components/StatusBadge";
 import { RiskBadge } from "@/components/RiskBadge";
-import { mockInvoices, formatINR } from "@/lib/mock-data";
+import { mockInvoices, formatINR, Invoice } from "@/lib/mock-data";
+import { useState } from "react";
 import {
   FileText,
   TrendingUp,
@@ -21,22 +22,75 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { FAB } from "@/components/FAB";
 
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { tokenizeInvoice } from "@/lib/stellar-issuance";
+
 export default function Dashboard() {
   const { userRole, user } = useAuth();
   const { isConnected, publicKey } = useWallet();
   const { data: account, isLoading: isLoadingAccount } = useStellarAccount(publicKey);
   const { data: transactions, isLoading: isLoadingTx } = useStellarTransactions(publicKey);
   const { convert } = useXLMToINR();
+  
+  const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices);
 
   const isBusiness = userRole === "business";
 
-  const totalInvoices = mockInvoices.length;
-  const totalValue = mockInvoices.reduce((s, i) => s + i.amount_inr, 0);
-  const funded = mockInvoices.filter((i) => ["funded", "paid"].includes(i.status));
-  const tokenized = mockInvoices.filter((i) => i.status === "tokenized");
+  const handleTokenize = async (invoice: Invoice) => {
+    if (!isConnected || !publicKey) {
+      toast.error("Please connect your Stellar wallet first");
+      return;
+    }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const nativeBalance = account?.balances.find((b: any) => b.asset_type === 'native')?.balance || "0";
+    const toastId = toast.loading("Tokenizing invoice on Stellar Testnet...");
+    try {
+      const result = await tokenizeInvoice(
+        publicKey,
+        invoice.id,
+        invoice.amount_inr, // Using INR amount as token amount for simplicity
+        invoice.invoice_number || invoice.id.replace("INV-", "")
+      );
+
+      if (result.success) {
+        // Update local state
+        setInvoices(prev => prev.map(inv => 
+          inv.id === invoice.id ? { ...inv, status: "tokenized", stellar_tx_hash: result.hash } : inv
+        ));
+
+        // Try to update Supabase if possible (might fail if RLS or schema issues, but good for demo)
+        const { error } = await supabase
+          .from('invoices')
+          .update({ 
+            status: 'tokenized',
+            stellar_tx_hash: result.hash,
+            // We could store asset code if schema supported it
+          })
+          .eq('id', invoice.id);
+
+        if (error) console.error("Supabase update failed:", error);
+
+        toast.success(`Tokenized! Asset: ${result.assetCode}`, {
+          id: toastId,
+          description: "View on Stellar Expert",
+          action: {
+            label: "View",
+            onClick: () => window.open(`https://stellar.expert/explorer/testnet/tx/${result.hash}`, '_blank')
+          }
+        });
+      }
+    } catch (error) {
+      toast.error("Tokenization failed", { id: toastId });
+      console.error(error);
+    }
+  };
+
+  const totalInvoices = invoices.length;
+  const totalValue = invoices.reduce((s, i) => s + i.amount_inr, 0);
+  const funded = invoices.filter((i) => ["funded", "paid"].includes(i.status));
+  const tokenized = invoices.filter((i) => i.status === "tokenized");
+
+  const nativeBalance = account?.balances.find((b: { asset_type: string; balance: string }) => b.asset_type === 'native')?.balance || "0";
   const balanceInr = convert(nativeBalance);
 
   return (
@@ -152,10 +206,11 @@ export default function Dashboard() {
                 <th className="text-center p-4 font-medium">Risk</th>
                 <th className="text-center p-4 font-medium">Rate</th>
                 <th className="text-center p-4 font-medium">Status</th>
+                {isBusiness && <th className="text-center p-4 font-medium">Action</th>}
               </tr>
             </thead>
             <tbody>
-              {mockInvoices.map((inv) => (
+              {invoices.map((inv) => (
                 <tr key={inv.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
                   <td className="p-4 font-mono text-xs text-muted-foreground group-hover:text-foreground transition-colors">{inv.id}</td>
                   <td className="p-4 font-medium">{inv.buyer_name}</td>
@@ -163,6 +218,31 @@ export default function Dashboard() {
                   <td className="p-4 text-center"><RiskBadge risk={inv.risk_score} /></td>
                   <td className="p-4 text-center text-stellar-purple font-bold">{inv.interest_rate}%</td>
                   <td className="p-4 text-center"><StatusBadge status={inv.status} /></td>
+                  {isBusiness && (
+                    <td className="p-4 text-center">
+                      {inv.status === "uploaded" || inv.status === "verified" ? (
+                        <Button 
+                          size="sm" 
+                          variant="neon" 
+                          className="h-8 text-xs"
+                          onClick={() => handleTokenize(inv)}
+                        >
+                          Tokenize
+                        </Button>
+                      ) : inv.stellar_tx_hash ? (
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          className="h-8 text-xs text-stellar-teal"
+                          onClick={() => window.open(`https://stellar.expert/explorer/testnet/tx/${inv.stellar_tx_hash}`, '_blank')}
+                        >
+                          View Chain
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

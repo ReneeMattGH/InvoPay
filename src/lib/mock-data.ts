@@ -1,48 +1,67 @@
-export const mockInvoices = [
+export interface Invoice {
+  id: string;
+  invoice_number?: string;
+  buyer_name: string;
+  description: string;
+  amount_inr: number;
+  due_date: string;
+  status: "uploaded" | "verified" | "tokenized" | "funded" | "repaid" | "paid";
+  risk_score: "low" | "medium" | "high";
+  interest_rate: number;
+  token_value: number | null;
+  created_at: string;
+  stellar_tx_hash?: string;
+}
+
+export const mockInvoices: Invoice[] = [
   {
     id: "INV-2026-001",
+    invoice_number: "2026-001",
     buyer_name: "Tata Consultancy Services",
     description: "IT Services - Q1 2026",
     amount_inr: 450000,
     due_date: "2026-04-15",
-    status: "tokenized" as const,
-    risk_score: "low" as const,
+    status: "tokenized",
+    risk_score: "low",
     interest_rate: 8.5,
     token_value: 5400,
     created_at: "2026-01-10",
   },
   {
     id: "INV-2026-002",
+    invoice_number: "2026-002",
     buyer_name: "Infosys Limited",
     description: "Software Development Contract",
     amount_inr: 780000,
     due_date: "2026-03-30",
-    status: "tokenized" as const,
-    risk_score: "low" as const,
+    status: "tokenized",
+    risk_score: "low",
     interest_rate: 9.0,
     token_value: 9360,
     created_at: "2026-01-15",
   },
   {
     id: "INV-2026-003",
+    invoice_number: "2026-003",
     buyer_name: "Reliance Industries",
     description: "Supply Chain Management",
     amount_inr: 320000,
     due_date: "2026-05-20",
-    status: "funded" as const,
-    risk_score: "medium" as const,
+    status: "funded",
+    risk_score: "medium",
     interest_rate: 12.0,
     token_value: 3840,
     created_at: "2026-01-20",
   },
   {
     id: "INV-2026-004",
+    invoice_number: "2026-004",
     buyer_name: "Wipro Technologies",
     description: "Cloud Infrastructure Setup",
     amount_inr: 1250000,
     due_date: "2026-06-10",
-    status: "uploaded" as const,
-    risk_score: "high" as const,
+    status: "uploaded",
+    risk_score: "high",
     interest_rate: 15.0,
     token_value: null,
     created_at: "2026-02-01",

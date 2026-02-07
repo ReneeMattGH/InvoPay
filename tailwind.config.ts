@@ -64,8 +64,8 @@ export default {
         stellar: {
           cyan: "hsl(var(--stellar-cyan))",
           teal: "hsl(var(--stellar-teal))",
-          navy: "hsl(var(--stellar-navy))",
-          gold: "hsl(var(--stellar-gold))",
+          purple: "hsl(var(--stellar-purple))",
+          pink: "hsl(var(--stellar-pink))",
         },
         risk: {
           low: "hsl(var(--risk-low))",
@@ -104,5 +104,6 @@ export default {
       },
     },
   },
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;

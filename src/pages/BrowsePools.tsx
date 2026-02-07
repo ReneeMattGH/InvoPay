@@ -26,38 +26,38 @@ export default function BrowsePools() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl">
+    <div className="space-y-6 max-w-7xl animate-slide-up">
       <div>
-        <h1 className="font-display text-2xl font-bold">Lending Pools</h1>
+        <h1 className="font-display text-3xl font-bold gradient-text w-fit">Lending Pools</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Browse tokenized invoices and invest via Stellar smart contracts.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {pools.map((pool) => (
-          <div key={pool.id} className="glass-card rounded-xl p-5 space-y-4 hover:glow-cyan transition-all duration-300">
+          <div key={pool.id} className="glass-card rounded-2xl p-6 space-y-4 hover-glow transition-all duration-300 group">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-mono text-xs text-muted-foreground">{pool.id}</p>
-                <h3 className="font-display font-semibold mt-1">{pool.buyer_name}</h3>
+                <p className="font-mono text-xs text-muted-foreground group-hover:text-stellar-pink transition-colors">{pool.id}</p>
+                <h3 className="font-display font-bold text-lg mt-1 text-foreground">{pool.buyer_name}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">{pool.description}</p>
               </div>
               <StatusBadge status={pool.status} />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="grid grid-cols-2 gap-4 text-sm bg-white/5 p-4 rounded-xl">
               <div>
                 <p className="text-muted-foreground text-xs">Value</p>
-                <p className="font-medium">{formatINR(pool.amount_inr)}</p>
+                <p className="font-bold">{formatINR(pool.amount_inr)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">Token Value</p>
-                <p className="font-medium text-primary">{formatUSDC(pool.token_value!)}</p>
+                <p className="font-bold text-stellar-teal">{formatUSDC(pool.token_value!)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">APR</p>
-                <p className="font-medium text-primary">{pool.interest_rate}%</p>
+                <p className="font-bold text-stellar-purple">{pool.interest_rate}%</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">Risk</p>
@@ -65,11 +65,12 @@ export default function BrowsePools() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-border/50">
+            <div className="flex items-center justify-between pt-2 border-t border-white/10">
               <span className="text-xs text-muted-foreground">Due: {pool.due_date}</span>
               <Button
                 size="sm"
-                className="gradient-stellar text-primary-foreground"
+                variant={pool.status === "funded" ? "secondary" : "gradient"}
+                className={pool.status === "funded" ? "" : "shadow-lg"}
                 onClick={() => setInvestDialog(pool)}
                 disabled={pool.status === "funded"}
               >

@@ -1,99 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 220 25% 10%;
+    /* Dark Purple Theme Base */
+    --background: 264 68% 20%; /* #2B1055 */
+    --foreground: 0 0% 100%;   /* #FFFFFF */
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
+    --card: 264 59% 28%;       /* #3b1d70 - Slightly lighter purple */
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
+    --popover: 264 59% 28%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 199 89% 48%;
+    --primary: 264 79% 61%;    /* #8C4EEA - Purple Accent */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 220 25% 10%;
+    --secondary: 264 40% 40%;  /* Muted Purple */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 14% 95%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 264 40% 15%;      /* Darker Muted */
+    --muted-foreground: 264 20% 70%; /* #CCCCCCish */
 
-    --accent: 168 76% 42%;
+    --accent: 327 100% 71%;    /* #FF6EDB - Neon Pink */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 88%;
-    --input: 220 13% 88%;
-    --ring: 199 89% 48%;
+    --border: 264 40% 35%;
+    --input: 264 40% 35%;
+    --ring: 166 100% 50%;      /* #00FFC3 - Teal Ring for focus */
 
-    --radius: 0.75rem;
+    --radius: 1rem;            /* 2xl rounded */
 
-    --sidebar-background: 220 25% 10%;
-    --sidebar-foreground: 220 14% 92%;
-    --sidebar-primary: 199 89% 48%;
+    /* Sidebar - match main theme or slightly darker */
+    --sidebar-background: 264 68% 15%;
+    --sidebar-foreground: 264 20% 90%;
+    --sidebar-primary: 327 100% 71%; /* Neon Pink active item */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 18%;
-    --sidebar-accent-foreground: 220 14% 92%;
-    --sidebar-border: 220 20% 18%;
-    --sidebar-ring: 199 89% 48%;
+    --sidebar-accent: 264 59% 28%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 264 40% 30%;
+    --sidebar-ring: 166 100% 50%;
 
     /* Custom tokens */
     --stellar-cyan: 199 89% 48%;
-    --stellar-teal: 168 76% 42%;
-    --stellar-navy: 220 25% 10%;
-    --stellar-gold: 45 93% 58%;
-    --risk-low: 142 71% 45%;
-    --risk-medium: 45 93% 58%;
-    --risk-high: 0 84% 60%;
-    --gradient-stellar: linear-gradient(135deg, hsl(199 89% 48%), hsl(168 76% 42%));
-    --gradient-dark: linear-gradient(135deg, hsl(220 25% 10%), hsl(220 20% 18%));
+    --stellar-teal: 166 100% 50%;
+    --stellar-purple: 264 79% 61%;
+    --stellar-pink: 327 100% 71%;
+    
+    --gradient-stellar: linear-gradient(135deg, hsl(264 79% 61%), hsl(327 100% 71%));
+    --gradient-bg: radial-gradient(circle at 50% 0%, #5D3FD3 0%, #2B1055 60%);
   }
 
+  /* Force dark mode styles if .dark class is used, but :root is already dark now */
   .dark {
-    --background: 220 25% 7%;
-    --foreground: 220 14% 92%;
-
-    --card: 220 25% 10%;
-    --card-foreground: 220 14% 92%;
-
-    --popover: 220 25% 10%;
-    --popover-foreground: 220 14% 92%;
-
-    --primary: 199 89% 48%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 20% 18%;
-    --secondary-foreground: 220 14% 92%;
-
-    --muted: 220 20% 15%;
-    --muted-foreground: 220 10% 55%;
-
-    --accent: 168 76% 42%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 20% 18%;
-    --input: 220 20% 18%;
-    --ring: 199 89% 48%;
-
-    --sidebar-background: 220 25% 7%;
-    --sidebar-foreground: 220 14% 92%;
-    --sidebar-primary: 199 89% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 12%;
-    --sidebar-accent-foreground: 220 14% 92%;
-    --sidebar-border: 220 20% 14%;
-    --sidebar-ring: 199 89% 48%;
+    --background: 264 68% 20%;
+    --foreground: 0 0% 100%;
+    /* ... keep same as root for now as requested base is dark */
   }
 }
 
@@ -101,34 +69,36 @@
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif;
+    @apply bg-background text-foreground;
+    background-image: var(--gradient-bg);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 }
 
 @layer utilities {
-  .gradient-stellar {
-    background: linear-gradient(135deg, hsl(199 89% 48%), hsl(168 76% 42%));
-  }
-  .gradient-stellar-text {
-    background: linear-gradient(135deg, hsl(199 89% 48%), hsl(168 76% 42%));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
   .glass-card {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+    @apply bg-card/60 backdrop-blur-xl border border-white/10 shadow-lg;
   }
-  .glow-cyan {
-    box-shadow: 0 0 30px -5px hsl(199 89% 48% / 0.3);
+  
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-[0_0_20px_rgba(140,78,234,0.5)] hover:-translate-y-1;
   }
-  .glow-teal {
-    box-shadow: 0 0 30px -5px hsl(168 76% 42% / 0.3);
+
+  .hover-glow-pink {
+    @apply transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,110,219,0.5)] hover:-translate-y-1;
+  }
+  
+  .text-glow {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--stellar-purple))] to-[hsl(var(--stellar-pink))];
+  }
+
+  .gradient-stellar {
+    @apply bg-gradient-to-r from-[hsl(var(--stellar-purple))] to-[hsl(var(--stellar-pink))];
   }
 }

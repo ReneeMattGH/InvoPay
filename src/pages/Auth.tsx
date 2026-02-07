@@ -33,6 +33,7 @@ export default function Auth() {
       await signIn(loginEmail, loginPassword);
       toast.success("Welcome back!");
       navigate("/dashboard");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "Login failed");
     } finally {
@@ -48,6 +49,7 @@ export default function Auth() {
       await signUp(signupEmail, signupPassword, signupRole, signupName);
       toast.success("Account created! Redirecting...");
       navigate("/dashboard");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message || "Signup failed");
     } finally {

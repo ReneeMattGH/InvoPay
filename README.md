@@ -1,6 +1,6 @@
-# StellarInvoice - Invoice Financing on Stellar & Soroban
+# InvoPay - Invoice Financing on Stellar & Soroban
 
-StellarInvoice is a decentralized invoice financing platform that allows businesses to tokenize their invoices as NFTs on the Stellar network and raise liquidity from investors through Soroban smart contracts.
+InvoPay is a decentralized invoice financing platform that allows businesses to tokenize their invoices as NFTs on the Stellar network and raise liquidity from investors through Soroban smart contracts.
 
 ## Features
 

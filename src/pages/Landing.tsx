@@ -11,7 +11,7 @@ export default function Landing() {
           <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
             <Wallet className="h-5 w-5 text-primary" />
           </div>
-          <span className="font-display text-xl font-bold">Stellarinvoice</span>
+          <span className="font-display text-xl font-bold">InvoPay</span>
         </div>
         <div className="flex items-center gap-3">
           <Link to="/auth">
@@ -73,7 +73,7 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        <p>© 2026 StellarInvoice. Built on Stellar &amp; Soroban. Made in India 🇮🇳</p>
+        <p>© 2026 InvoPay. Built on Stellar &amp; Soroban. Made in India 🇮🇳</p>
       </footer>
     </div>
   );

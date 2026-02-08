@@ -17,8 +17,6 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-import { RiskBanner } from "@/components/RiskBanner";
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -26,7 +24,6 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-        <RiskBanner />
         <AuthProvider>
           <WalletProvider>
             <Routes>

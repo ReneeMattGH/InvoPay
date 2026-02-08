@@ -1,4 +1,4 @@
--- Create tables for StellarInvoice
+-- Create tables for InvoPay
 
 -- Invoices Table
 create table public.invoices (

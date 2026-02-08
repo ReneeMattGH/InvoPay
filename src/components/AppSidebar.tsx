@@ -50,7 +50,7 @@ export function AppSidebar() {
             <Wallet className="h-4 w-4 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="font-display text-sm font-bold text-sidebar-foreground">StellarInvoice</h2>
+            <h2 className="font-display text-sm font-bold text-sidebar-foreground">InvoPay</h2>
             <p className="text-xs text-muted-foreground capitalize">{userRole || "business"} account</p>
           </div>
         </div>

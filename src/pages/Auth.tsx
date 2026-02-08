@@ -64,7 +64,7 @@ export default function Auth() {
           <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Wallet className="h-6 w-6 text-primary" />
           </div>
-          <h1 className="font-display text-2xl font-bold">StellarInvoice</h1>
+          <h1 className="font-display text-2xl font-bold">InvoPay</h1>
           <p className="text-sm text-muted-foreground mt-1">Decentralized Invoice Financing on Stellar</p>
         </div>
 

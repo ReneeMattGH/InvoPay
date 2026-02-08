@@ -5,6 +5,7 @@ import { Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { WalletConnectDialog } from "@/components/WalletConnectDialog";
+import { ModeToggle } from "@/components/ModeToggle";
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const [walletOpen, setWalletOpen] = useState(false);
@@ -22,15 +23,18 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
           <header className="h-16 flex items-center justify-between border-b border-white/5 px-6 bg-background/40 backdrop-blur-md sticky top-0 z-10">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
-            <Button
-              variant="neon"
-              size="sm"
-              className="gap-2"
-              onClick={() => setWalletOpen(true)}
-            >
-              <Wallet className="h-4 w-4" />
-              <span className="hidden sm:inline">Connect Stellar Wallet</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <ModeToggle />
+              <Button
+                variant="neon"
+                size="sm"
+                className="gap-2"
+                onClick={() => setWalletOpen(true)}
+              >
+                <Wallet className="h-4 w-4" />
+                <span className="hidden sm:inline">Connect Stellar Wallet</span>
+              </Button>
+            </div>
           </header>
           <main className="flex-1 p-4 md:p-8 overflow-auto z-0">
             {children}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { mockInvoices, formatINR, formatUSDC } from "@/lib/mock-data";
+import { formatINR, formatUSDC } from "@/lib/utils";
+import { Invoice } from "@/types/app-types";
 import { RiskBadge } from "@/components/RiskBadge";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
@@ -7,19 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Layers, TrendingUp, CheckCircle2, Rocket, Shield, AlertTriangle, Search } from "lucide-react";
+import { Layers, TrendingUp, CheckCircle2, Rocket, Shield, AlertTriangle, Search, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
 import { deployLendingPool, investInPool, getPoolYield, CURRENT_POOL_CONTRACT_ID } from "@/lib/soroban";
+import { TradeDialog } from "@/components/TradeDialog";
+import { Badge } from "@/components/ui/badge";
+import { useMarketplacePools } from "@/hooks/useRealtimeData";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function BrowsePools() {
-  const { userRole } = useAuth();
+  const { userRole, user } = useAuth();
   const { isConnected, publicKey } = useWallet();
   const [searchQuery, setSearchQuery] = useState("");
   const [riskFilter, setRiskFilter] = useState<string>("all");
 
-  const allPools = mockInvoices.filter((i) => i.status === "tokenized" || i.status === "funded");
+  const { pools: allPools, loading } = useMarketplacePools();
+
   const pools = allPools.filter(pool => {
     const matchesSearch = pool.buyer_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           pool.id.toLowerCase().includes(searchQuery.toLowerCase());
@@ -31,21 +37,36 @@ export default function BrowsePools() {
 
   useEffect(() => {
     const fetchYields = async () => {
-      const yields: Record<string, number> = {};
-      for (const pool of pools) {
-        // In a real app, each pool would have its own contract ID
-        // Here we use the shared ID + risk score fallback
-        const numericRisk = pool.risk_score === "low" ? 10 : pool.risk_score === "medium" ? 40 : 70;
-        yields[pool.id] = await getPoolYield(CURRENT_POOL_CONTRACT_ID, numericRisk);
+      if (pools.length === 0) return;
+      
+      try {
+        const promises = pools.map(async (pool) => {
+          // Use the specific pool contract ID if available, otherwise fallback to the global demo ID
+          const contractId = pool.stellar_tx_hash || CURRENT_POOL_CONTRACT_ID; // Use stellar_tx_hash as fallback for contract_id
+          const numericRisk = pool.risk_score === "low" ? 10 : pool.risk_score === "medium" ? 40 : 70;
+          try {
+            const yieldVal = await getPoolYield(contractId, numericRisk);
+            return { id: pool.id, val: yieldVal };
+          } catch (e) {
+            console.error(`Error fetching yield for ${pool.id}`, e);
+            return { id: pool.id, val: pool.interest_rate || 10 };
+          }
+        });
+
+        const results = await Promise.all(promises);
+        const yields: Record<string, number> = {};
+        results.forEach(r => { yields[r.id] = r.val; });
+        setPoolYields(yields);
+      } catch (e) {
+        console.error("Error in fetchYields batch", e);
       }
-      setPoolYields(yields);
     };
     fetchYields();
     // Refresh every 30s to simulate "Live" data
     const interval = setInterval(fetchYields, 30000);
     return () => clearInterval(interval);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  
+  }, [pools]); // Added dependency on pools to re-fetch when pools change
+
   const [investDialog, setInvestDialog] = useState<typeof pools[0] | null>(null);
   const [investAmount, setInvestAmount] = useState("");
   const [tranche, setTranche] = useState<"Senior" | "Junior">("Senior");
@@ -60,8 +81,28 @@ export default function BrowsePools() {
     
     setInvesting(true);
     try {
-      const result = await investInPool(publicKey, Number(investAmount), tranche);
+      // Use the specific pool contract ID if available, otherwise fallback
+      const contractId = investDialog?.stellar_tx_hash || CURRENT_POOL_CONTRACT_ID; // Use stellar_tx_hash
+      
+      const result = await investInPool(contractId, publicKey, Number(investAmount));
       if (result.success) {
+        // Save investment as NFT asset
+        if (investDialog && user) {
+          const yieldRate = poolYields[investDialog.id] || investDialog.interest_rate || 10;
+          const finalApy = tranche === "Senior" ? yieldRate - 2 : yieldRate + 4;
+
+          const { error } = await supabase.from('investments').insert({
+            investor_id: user.id,
+            invoice_id: investDialog.id,
+            amount_usdc: Number(investAmount),
+            status: "active",
+            stellar_tx_hash: result.hash,
+            apy: Number(finalApy.toFixed(2))
+          });
+          
+          if (error) throw error;
+        }
+
         toast.success(`Investment submitted via Soroban!`, {
           description: `Tx Hash: ${result.hash.substring(0, 10)}...`
         });
@@ -87,11 +128,24 @@ export default function BrowsePools() {
     
     try {
       const contractId = await deployLendingPool(publicKey);
-      toast.success("Pool Contract Deployed!", { 
-        id: toastId,
-        description: `Contract ID: ${contractId.substring(0, 8)}...`
-      });
-      // In a real app, we'd update the pool status in DB here
+      
+      if (contractId) {
+        const { error } = await supabase
+          .from("invoices")
+          .update({ 
+            status: "tokenized",
+            stellar_tx_hash: contractId
+            // contract_id: contractId // Removed
+          })
+          .eq("id", poolId);
+
+        if (error) throw error;
+
+        toast.success("Pool Contract Deployed!", { 
+          id: toastId,
+          description: `Contract ID: ${contractId.substring(0, 8)}...`
+        });
+      }
     } catch (error) {
       console.error(error);
       toast.error("Deployment failed", { id: toastId });
@@ -141,8 +195,15 @@ export default function BrowsePools() {
                 <p className="font-mono text-xs text-muted-foreground group-hover:text-primary transition-colors">{pool.id}</p>
                 <h3 className="font-display font-semibold text-lg mt-1 text-foreground">{pool.buyer_name}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">{pool.description}</p>
+                {pool.ocr_status === 'verified' && (
+                  <div className="flex items-center gap-1 mt-2">
+                    <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-200 text-[10px] px-1.5 h-5 gap-1 font-normal">
+                      <Check className="h-2.5 w-2.5" /> OCR Verified • {Math.round((pool.ocr_extracted as any)?.confidence || 0)}%
+                    </Badge>
+                  </div>
+                )}
               </div>
-              <StatusBadge status={pool.status} />
+              <StatusBadge status={pool.status as "funded" | "tokenized" | "verified" | "uploaded" | "repaid" | "paid"} />
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-sm bg-muted/30 p-4 rounded-lg">
@@ -163,7 +224,7 @@ export default function BrowsePools() {
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">Risk</p>
-                <RiskBadge risk={pool.risk_score} />
+                <RiskBadge risk={pool.risk_score as "low" | "medium" | "high"} />
               </div>
             </div>
 
@@ -186,16 +247,22 @@ export default function BrowsePools() {
                     {deploying === pool.id ? "Deploying..." : "Create Pool"}
                   </Button>
                 ) : (
-                  <Button
-                    size="sm"
-                    variant={pool.status === "funded" ? "secondary" : "default"}
-                    className={pool.status === "funded" ? "" : "shadow-sm"}
-                    onClick={() => setInvestDialog(pool)}
-                    disabled={pool.status === "funded"}
-                  >
-                    <TrendingUp className="mr-1 h-3 w-3" />
-                    {pool.status === "funded" ? "Fully Funded" : "Invest"}
-                  </Button>
+                  <div className="flex gap-2">
+                    <TradeDialog 
+                      assetCode={`INV${pool.invoice_number?.slice(-4) || '0000'}`} 
+                      assetIssuer={publicKey || ""}
+                    />
+                    <Button
+                      size="sm"
+                      variant={pool.status === "funded" ? "secondary" : "default"}
+                      className={pool.status === "funded" ? "" : "shadow-sm"}
+                      onClick={() => setInvestDialog(pool)}
+                      disabled={pool.status === "funded"}
+                    >
+                      <TrendingUp className="mr-1 h-3 w-3" />
+                      {pool.status === "funded" ? "Fully Funded" : "Invest"}
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
@@ -225,8 +292,8 @@ export default function BrowsePools() {
               <div className="glass-card rounded-lg p-4 space-y-2 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Pool</span><span className="font-medium">{investDialog.id}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Base APR</span><span className="text-primary font-medium">{poolYields[investDialog.id] || investDialog.interest_rate}%</span></div>
-                <div className="flex justify-between items-center"><span className="text-muted-foreground">Risk</span><RiskBadge risk={investDialog.risk_score} /></div>
-              </div>
+                        <div className="flex justify-between items-center"><span className="text-muted-foreground">Risk</span><RiskBadge risk={investDialog.risk_score as "low" | "medium" | "high"} /></div>
+                      </div>
 
               <div className="space-y-2">
                 <Label>Select Tranche</Label>

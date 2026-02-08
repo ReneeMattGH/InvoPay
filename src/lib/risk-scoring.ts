@@ -27,7 +27,9 @@ export const fetchAccountActivity = async (publicKey: string) => {
 export const calculateRealRiskScore = async (
   amount: number, 
   dueDateStr: string,
-  userPublicKey?: string
+  userPublicKey?: string,
+  ocrConfidence?: number,
+  ocrStatus?: string
 ): Promise<RiskProfile> => {
   const dueDate = new Date(dueDateStr);
   const now = new Date();
@@ -69,6 +71,21 @@ export const calculateRealRiskScore = async (
          reason = "Low on-chain activity detected. Standard rates apply.";
       }
     }
+  }
+
+  // 3. OCR Verification Bonus
+  if (ocrStatus === 'verified' && ocrConfidence && ocrConfidence > 85) {
+    // High confidence OCR match lowers risk
+    
+    if (score === "high") score = "medium";
+    else if (score === "medium") score = "low";
+    
+    rate -= 1.0;
+    reason += " + OCR Verified with high confidence.";
+  } else if (ocrStatus === 'manual_override') {
+    // Manual override might slightly increase risk or keep it neutral, but definitely flags it
+    // We won't penalize too much, but won't give the bonus
+    reason += " (Manual verification).";
   }
 
   // Cap rates

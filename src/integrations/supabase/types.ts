@@ -24,6 +24,7 @@ export type Database = {
           status: string
           stellar_tx_hash: string | null
           yield_earned: number | null
+          apy: number | null
         }
         Insert: {
           amount_usdc: number
@@ -34,6 +35,7 @@ export type Database = {
           status?: string
           stellar_tx_hash?: string | null
           yield_earned?: number | null
+          apy?: number | null
         }
         Update: {
           amount_usdc?: number
@@ -72,6 +74,11 @@ export type Database = {
           token_value: number | null
           updated_at: string
           user_id: string
+          ocr_extracted: Json | null
+          ocr_status: string | null
+          file_hash: string | null
+          justification: string | null
+          contract_id: string | null
         }
         Insert: {
           amount_inr: number
@@ -89,6 +96,11 @@ export type Database = {
           token_value?: number | null
           updated_at?: string
           user_id: string
+          ocr_extracted?: Json | null
+          ocr_status?: string | null
+          file_hash?: string | null
+          justification?: string | null
+          contract_id?: string | null
         }
         Update: {
           amount_inr?: number
@@ -106,6 +118,7 @@ export type Database = {
           token_value?: number | null
           updated_at?: string
           user_id?: string
+          contract_id?: string | null
         }
         Relationships: []
       }

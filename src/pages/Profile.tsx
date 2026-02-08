@@ -47,7 +47,7 @@ export default function Profile() {
 
       <div className="glass-card rounded-xl p-5 text-xs text-muted-foreground border-l-4 border-emerald-500 bg-emerald-500/5">
         <p className="font-bold mb-1 text-emerald-600 text-sm">🔐 Security</p>
-        <p>Your account is secured via Lovable Cloud authentication. Invoice data is stored encrypted and tokenization happens on the Stellar Soroban network.</p>
+        <p>Your account is secured via standard encryption. Invoice data is stored encrypted and tokenization happens on the Stellar Soroban network.</p>
       </div>
     </div>
   );

@@ -1,68 +1,82 @@
-# Stellar Cash Flow - Invoice Financing on Soroban
+# StellarInvoice - Invoice Financing on Stellar & Soroban
 
-A decentralized invoice financing platform built on Stellar and Soroban. Businesses can tokenize invoices as assets, and investors can fund them via liquidity pools to earn yields.
+StellarInvoice is a decentralized invoice financing platform that allows businesses to tokenize their invoices as NFTs on the Stellar network and raise liquidity from investors through Soroban smart contracts.
 
 ## Features
 
-- **Invoice Tokenization**: Mint unique assets representing invoices on Stellar Testnet.
-- **Compliance**: Built-in asset controls (Auth Required, Revocable, Clawback) using `stellar-issuance.ts`.
-- **Risk Scoring**: Real-time risk assessment using Horizon account history (payments/trustlines).
-- **Lending Pools**: Soroban smart contracts for pooling funds and earning yields.
-- **Secondary Market**: Trade invoice tokens on the Stellar DEX.
-- **Investor Dashboard**: Track yields, balances, and investments with real-time charts.
-- **India Focus**: INR display and UPI integration hooks.
+- **Role-Based Dashboards**: Separate interfaces for Businesses (Borrowers) and Investors (Lenders).
+- **Invoice Tokenization**: Mint invoices as unique NFTs on Stellar with metadata.
+- **Real-Time Risk Scoring**: Dynamic risk assessment based on Horizon account history.
+- **Lending Pools**: Soroban-based liquidity pools with senior/junior tranches.
+- **Secondary Market**: Trade tokenized invoices on the Stellar DEX.
+- **Compliance**: Asset authorization and clawback flags for regulatory compliance.
+- **India Focus**: INR denomination and simulated UPI payout integration.
 
 ## Tech Stack
 
-- **Frontend**: React, Vite, Tailwind CSS, Shadcn UI
+- **Frontend**: React, TypeScript, Tailwind CSS, shadcn/ui
 - **Blockchain**: Stellar SDK, Soroban Client, Freighter Wallet
-- **Backend**: Supabase (Database & Auth)
-- **Charts**: Recharts
+- **Backend/Storage**: Supabase (Auth, Database, Storage)
+- **Deployment**: Vercel (Frontend), Soroban Testnet (Contracts)
+
+## Prerequisites
+
+- Node.js v18+
+- Freighter Wallet Extension (configured for Testnet)
+- Soroban CLI (for contract compilation, optional for frontend dev)
 
 ## Setup Instructions
 
-### Prerequisites
-1. Node.js (v18+)
-2. [Freighter Wallet Extension](https://www.freighter.app/)
-3. Supabase Project
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/stellar-cash-flow.git
+    cd stellar-cash-flow
+    ```
 
-### Installation
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-1. Clone the repository:
-   ```bash
-   git clone <repo-url>
-   cd stellar-cash-flow
-   ```
+3.  **Environment Variables:**
+    Create a `.env` file in the root directory:
+    ```env
+    VITE_SUPABASE_URL=your_supabase_url
+    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+    VITE_SOROBAN_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+    VITE_SOROBAN_RPC_URL="https://soroban-testnet.stellar.org"
+    ```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+4.  **Run Development Server:**
+    ```bash
+    npm run dev
+    ```
 
-3. Environment Variables:
-   Create a `.env` file in the root directory:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+5.  **Build for Production:**
+    ```bash
+    npm run build
+    ```
 
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
+## Usage Flow
 
-### Blockchain Setup (Testnet)
+1.  **Sign Up/Login**: Create an account as a Business or Investor.
+2.  **Connect Wallet**: Connect Freighter wallet (ensure Testnet is selected and funded via Friendbot).
+3.  **Business**:
+    - Upload an invoice PDF.
+    - Tokenize the invoice (mints NFT).
+    - Deploy a Lending Pool for the invoice.
+4.  **Investor**:
+    - Browse available pools.
+    - Invest USDC/XLM into a pool (Senior or Junior tranche).
+    - View yields and withdraw returns.
+5.  **Secondary Market**: Trade invoice tokens on the DEX.
 
-1. **Fund Wallet**: Open Freighter, switch to "Testnet", and fund your account using the built-in Friendbot or [Stellar Laboratory](https://laboratory.stellar.org/#account-creator?network=test).
-2. **Soroban**: The app uses a simulated contract ID (`CURRENT_POOL_CONTRACT_ID`) in `src/lib/soroban.ts`. For full functionality, deploy the Rust contract to Testnet and update this ID.
+## Smart Contracts
 
-## Deployment
+The project uses two main Soroban contracts:
+- `invoice_nft`: Handles minting and metadata of invoice tokens.
+- `lending_pool`: Manages deposits, tranches, and yield distribution.
 
-### Vercel
-1. Push to GitHub.
-2. Import project to Vercel.
-3. Add Environment Variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
-4. Deploy!
+## License
 
-## Disclaimer
-**TESTNET ONLY**. This application is for demonstration purposes on the Stellar Testnet. Do not use real funds.
+MIT

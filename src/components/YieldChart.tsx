@@ -1,24 +1,32 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const data = [
-  { month: "Jan", yield: 4.2, balance: 1000 },
-  { month: "Feb", yield: 4.5, balance: 1200 },
-  { month: "Mar", yield: 4.8, balance: 1150 },
-  { month: "Apr", yield: 5.1, balance: 1400 },
-  { month: "May", yield: 5.4, balance: 1600 },
-  { month: "Jun", yield: 5.8, balance: 1900 },
-];
+export interface YieldData {
+  month: string;
+  yield: number;
+  balance: number;
+}
 
-export function YieldChart() {
+interface YieldChartProps {
+  data?: YieldData[];
+}
+
+export function YieldChart({ data }: YieldChartProps) {
+  // Default empty state or placeholder if no data
+  const chartData = data && data.length > 0 ? data : [
+    { month: "Jan", yield: 0, balance: 0 },
+    { month: "Feb", yield: 0, balance: 0 },
+    { month: "Mar", yield: 0, balance: 0 },
+  ];
+
   return (
     <Card className="glass-card hover-glow col-span-2">
       <CardHeader>
-        <CardTitle className="text-sm font-medium">Yield Performance</CardTitle>
+        <CardTitle className="text-sm font-medium">Yield Projection (6 Months)</CardTitle>
       </CardHeader>
       <CardContent className="h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
+          <AreaChart data={chartData}>
             <defs>
               <linearGradient id="colorYield" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>

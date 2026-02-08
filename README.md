@@ -1,82 +1,115 @@
-# InvoPay - Invoice Financing on Stellar & Soroban
+# InvoPay
 
-InvoPay is a decentralized invoice financing platform that allows businesses to tokenize their invoices as NFTs on the Stellar network and raise liquidity from investors through Soroban smart contracts.
+💸 **Instant cash for small businesses from unpaid invoices**  
+Turn your pending invoices into quick money → sell fractions to investors → get paid today  
+Built on **Stellar + Soroban** 🌏
 
-## Features
+<img width="1458" height="795" alt="Screenshot 2026-02-08 at 8 38 34 AM" src="https://github.com/user-attachments/assets/eca57030-e4d4-43a8-9453-14b0cb96e1f1" />
 
-- **Role-Based Dashboards**: Separate interfaces for Businesses (Borrowers) and Investors (Lenders).
-- **Invoice Tokenization**: Mint invoices as unique NFTs on Stellar with metadata.
-- **Real-Time Risk Scoring**: Dynamic risk assessment based on Horizon account history.
-- **Lending Pools**: Soroban-based liquidity pools with senior/junior tranches.
-- **Secondary Market**: Trade tokenized invoices on the Stellar DEX.
-- **Compliance**: Asset authorization and clawback flags for regulatory compliance.
-- **India Focus**: INR denomination and simulated UPI payout integration.
 
-## Tech Stack
+## Quick Facts 🤓
 
-- **Frontend**: React, TypeScript, Tailwind CSS, shadcn/ui
-- **Blockchain**: Stellar SDK, Soroban Client, Freighter Wallet
-- **Backend/Storage**: Supabase (Auth, Database, Storage)
-- **Deployment**: Vercel (Frontend), Soroban Testnet (Contracts)
+- **Solves** — Indian SMEs wait 30–90 days for invoice payments → constant cash shortage  
+- **Delivers** — Tokenize invoice as NFT → sell shares instantly → receive 80–90% cash in minutes  
+- **Blockchain** — Stellar (super low fees, 5-second settlement) + Soroban (smart lending pools & escrow)  
+- **Security** — OCR auto-check + file hash stored on-chain  
+- **Status** — Live Testnet prototype (2026)
 
-## Prerequisites
+## The Problem in 3 Lines 🤔
 
-- Node.js v18+
-- Freighter Wallet Extension (configured for Testnet)
-- Soroban CLI (for contract compilation, optional for frontend dev)
+- Small shops, freelancers, suppliers finish work → send invoice → wait months  
+- Banks are slow, charge high fees, reject small amounts  
+- Result → can't pay rent, salaries, suppliers → business struggles or shuts down  
 
-## Setup Instructions
+**InvoPay changes this** — cash today, investors earn real yield tomorrow.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/stellar-cash-flow.git
-    cd stellar-cash-flow
-    ```
+## Core Features – At a Glance 🤩
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+| Feature                        | What it does                                      | Why it matters                              |
+|-------------------------------|---------------------------------------------------|---------------------------------------------|
+| OCR Invoice Check             | Scans PDF/photo → auto-matches amount/date        | Blocks fake or wrong invoices               |
+| NFT Tokenization              | Turns verified invoice into unique Soroban NFT    | Secure, unique, tamper-proof ownership      |
+| Fractional Tokens             | Split invoice into tiny shares anyone can buy     | Even ₹100 investments possible              |
+| Lending Pools                 | Senior (safe, lower yield) / Junior (higher risk/yield) | Investors choose their comfort level        |
+| Dynamic Interest Rates        | Auto-adjusts based on real on-chain risk data     | Fair & transparent pricing                  |
+| Escrow + Auto-Pay             | Funds locked → automatically released on repayment| No middleman, no trust issues               |
+| Regional Demand Insights      | Shows where most funding is happening (Chennai, Bangalore…) | Helps investors find hot opportunities      |
+| Mobile-First PWA              | Installable on phone, works offline-ish           | 90%+ of Indian SMEs use mobiles             |
 
-3.  **Environment Variables:**
-    Create a `.env` file in the root directory:
-    ```env
-    VITE_SUPABASE_URL=your_supabase_url
-    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-    VITE_SOROBAN_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
-    VITE_SOROBAN_RPC_URL="https://soroban-testnet.stellar.org"
-    ```
+## How It Works – 30-Second Flow 🥸
 
-4.  **Run Development Server:**
-    ```bash
-    npm run dev
-    ```
+**Business Owner**
+1. Upload invoice (PDF or photo)  
+2. OCR verifies → green match → confirm  
+3. Tokenize → NFT created on Soroban  
+4. Create pool → investors fund → cash arrives  
+5. Client pays → upload proof → auto-repay investors  
 
-5.  **Build for Production:**
-    ```bash
-    npm run build
-    ```
+**Investor** 🤑
+1. Browse pools → see OCR badge, risk, yield  
+2. Pick senior or junior tranche  
+3. Invest via Freighter wallet  
+4. Earn yield → withdraw or trade when repaid  
 
-## Usage Flow
+## Tech Stack – Simple View 🥞
 
-1.  **Sign Up/Login**: Create an account as a Business or Investor.
-2.  **Connect Wallet**: Connect Freighter wallet (ensure Testnet is selected and funded via Friendbot).
-3.  **Business**:
-    - Upload an invoice PDF.
-    - Tokenize the invoice (mints NFT).
-    - Deploy a Lending Pool for the invoice.
-4.  **Investor**:
-    - Browse available pools.
-    - Invest USDC/XLM into a pool (Senior or Junior tranche).
-    - View yields and withdraw returns.
-5.  **Secondary Market**: Trade invoice tokens on the DEX.
+- Frontend → React + Tailwind + shadcn/ui + PWA  
+- Auth & Database → Supabase  
+- OCR Verification → Tesseract.js (runs in your browser)  
+- Blockchain → Stellar Testnet + Soroban smart contracts  
+- Wallet → Freighter  
+- Charts & Visuals → Recharts  
 
-## Smart Contracts
+## Screenshots 😉📸
 
-The project uses two main Soroban contracts:
-- `invoice_nft`: Handles minting and metadata of invoice tokens.
-- `lending_pool`: Manages deposits, tranches, and yield distribution.
+(Add real screenshots to `/screenshots` folder)
 
-## License
+### - Business Dashboard – My Invoices overview  
+<img width="1458" height="795" alt="Screenshot 2026-02-08 at 8 49 11 AM" src="https://github.com/user-attachments/assets/778e113d-073d-4b2c-b2d5-11a27b08cb10" />
 
-MIT
+
+
+### - OCR Verification in action  
+<img width="1458" height="795" alt="Screenshot 2026-02-08 at 8 51 20 AM" src="https://github.com/user-attachments/assets/6a85b3d5-e0dd-4b78-aa53-bf288a058eb1" />
+
+
+### - Investor Pools + Regional Demand chart  
+<img width="1458" height="795" alt="Screenshot 2026-02-08 at 8 55 48 AM" src="https://github.com/user-attachments/assets/0c0a8db1-6d2f-4875-acdf-05010d6e41dc" />
+
+
+### - Tokenize & Pool Creation screen  
+<img width="1506" height="760" alt="Screenshot 2026-02-08 at 9 00 31 AM" src="https://github.com/user-attachments/assets/fe1c3b2e-e8e9-404a-95bf-440ee0910625" />
+<img width="1506" height="760" alt="Screenshot 2026-02-08 at 9 00 37 AM" src="https://github.com/user-attachments/assets/d12e7d77-ff89-4640-b7d6-51a4463da3a7" />
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+## Live Links & Contracts (Testnet) ⛓️
+
+- Frontend (update when deployed): [invopay-six.vercel.app ](https://invopay-six.vercel.app/)
+- Explorer: GAEM5ZSDHLXA5F5YICVGT2RJ6EZ6VR3L4WM7J43O344IIDVWTRXWCWXP [testnet xlm]
+
+**Important**: This is a Testnet demo only — no real money is at risk.
+
+## What's Next – Future Plans 🔮💰
+
+**Short-term (3–6 months)**  
+- Launch on Stellar Mainnet  
+- Upgrade to paid OCR API (higher accuracy)  
+- Add simple KYC for investors  
+- Build native Android & iOS apps (Expo)
+
+**Medium-term (6–12 months)**  
+- Direct integration with Tally, Vyapar, Zoho Books  
+- On-chain credit scoring from payment history  
+- Default protection pool for investors
+
+**Long-term**  
+- Expand to other Indian states & emerging markets  
+- Become the go-to invoice liquidity platform on Stellar  
+
+## Built on Stellar
+ 
